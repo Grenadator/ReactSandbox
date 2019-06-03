@@ -1,0 +1,5 @@
+{
+    "client_id": "845ed8df5682497da1a403181d470c02",
+    "redirect_uri": "http://localhost:3000",
+    "scope": "user-read-private user-read-email user-read-playback-state"
+}

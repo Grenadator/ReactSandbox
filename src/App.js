@@ -3,6 +3,7 @@ import React from 'react';
 //import logo, { ReactComponent } from './logo.svg';
 import './App.css';
 import SpotifyWebApi from 'spotify-web-api-js';
+const config = require('./config.json');
 const spotify = new SpotifyWebApi();
 
 // Header of the Sandbox
@@ -14,13 +15,13 @@ function Header() {
     );
 }
 
-function Login() {
+function Login(props) {
     return(
         <div className="container-large p-4">
             <div className="container-fluid">
                 <div className="row">
                     <div className="col-12">
-                        <a href='http://localhost:8888' className="btn btn-success">Se connecter à Spotify</a>
+                        <a href={props.loginLink} className="btn btn-success">Se connecter à Spotify</a>
                     </div>
                 </div>
             </div>
@@ -32,13 +33,22 @@ class App extends React.Component {
 
     constructor() {
         super();
+
+        // Here we control informations that we got from Spotify
         const params = this.getHashParams();
         const token = params.access_token;
         if(token) {
             spotify.setAccessToken(token);
         }
+        
+        // Here, we prepare our redirect link to Spotify
+        let state = this.generateRandomString(16);
+        document.cookie = "spotify_auth_state="+state;
+        const loginLink = 'https://accounts.spotify.com/authorize?client_id='+config.client_id+'&response_type=token&redirect_uri='+config.redirect_uri+"&state="+state+"&scope="+config.scope;
+
         this.state = {
             loggedIn: token ? true : false,
+            loginLink: encodeURI(loginLink),
             playing: { 
                 name: 'Absolument rien, utilisateur non connecté', 
                 albumName: '', 
@@ -52,8 +62,6 @@ class App extends React.Component {
 
     getNowPlaying() {
         spotify.getMyCurrentPlaybackState().then((response) => {
-            console.log(response);
-
             // Retrieving complete artists list
             let artists = [];
             response.item.artists.forEach(item => {
@@ -85,11 +93,22 @@ class App extends React.Component {
         return hashParams;
     }
 
+    // We use this method to log in to Spotify
+    generateRandomString(length) {
+        var text = '';
+        var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+        for (var i = 0; i < length; i++) {
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+        return text;
+    }
+
     render() {
         return (
             <div className="App">
                 <Header />
-                <Login/>
+                <Login loginLink={this.state.loginLink}/>
                 <div className="container-large">
                     <div className="container-fluid">
                         <div className="row mb-2">
