@@ -1,0 +1,9 @@
+.App {
+    text-align: center;
+}
+
+header {
+    border-bottom: 1px solid #61DBFB;
+    color: #61DBFB;
+    text-align: center;
+}
