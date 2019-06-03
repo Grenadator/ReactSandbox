@@ -1,3 +1,4 @@
+/* eslint-disable no-script-url */
 import React from 'react';
 //import logo, { ReactComponent } from './logo.svg';
 import './App.css';
@@ -15,7 +16,7 @@ function Header() {
 
 function Login() {
     return(
-        <div className="container-large p-5">
+        <div className="container-large p-4">
             <div className="container-fluid">
                 <div className="row">
                     <div className="col-12">
@@ -38,16 +39,34 @@ class App extends React.Component {
         }
         this.state = {
             loggedIn: token ? true : false,
-            playing: { name: 'Absolument rien, utilisateur non connecté', album: '' }
+            playing: { 
+                name: 'Absolument rien, utilisateur non connecté', 
+                albumName: '', 
+                artists: '',
+                albumPicture: '',
+                trackLink: 'javascript:void(0)', 
+                albumLink: 'javascript:void(0)'
+            }
         }
     }
 
     getNowPlaying() {
         spotify.getMyCurrentPlaybackState().then((response) => {
+            console.log(response);
+
+            // Retrieving complete artists list
+            let artists = [];
+            response.item.artists.forEach(item => {
+                artists.push(<a href={item.external_urls.spotify} rel="noopener noreferrer" target="_blank">{item.name}</a>)
+            });
             this.setState({
                 playing: {
                     name: response.item.name,
-                    album: response.item.album.images[0].url
+                    albumName: response.item.album.name,
+                    albumPicture: response.item.album.images[0].url,
+                    artists: artists,
+                    trackLink: response.item.external_urls.spotify,
+                    albumLink: response.item.album.external_urls.spotify,
                 }
             })
         });
@@ -73,18 +92,20 @@ class App extends React.Component {
                 <Login/>
                 <div className="container-large">
                     <div className="container-fluid">
-                        <div className="row">
+                        <div className="row mb-2">
                             <div className="col-12">
-                                Écoute actuellement: {this.state.playing.name}
+                                Écoute actuelle: <a href={this.state.playing.trackLink} rel="noopener noreferrer" target="_blank">{this.state.playing.name}</a><br/>
+                                Album: <a href={this.state.playing.albumLink} rel="noopener noreferrer" target="_blank">{this.state.playing.albumName}</a><br/>
+                                Artiste: {this.state.playing.artists}
                             </div>
                         </div>
                         <div className="row">
                             <div className="col-12">
-                                <img src={this.state.playing.album} alt=""/>
+                                <img src={this.state.playing.albumPicture} alt=""/>
                             </div>
                         </div>
                         { this.state.loggedIn &&
-                            <button className="btn btn-primary" onClick={() => this.getNowPlaying()}>
+                            <button className="btn btn-primary mt-4" onClick={() => this.getNowPlaying()}>
                                 Contrôler l'écoute actuelle
                             </button>
                         }
