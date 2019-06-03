@@ -16,7 +16,6 @@ function Header() {
 }
 
 function Login(props) {
-    console.log(props);
     return(
         <div className="container-large p-4">
             <div className="container-fluid">
@@ -34,6 +33,8 @@ class App extends React.Component {
 
     constructor() {
         super();
+
+        // Here we control informations that we got from Spotify
         const params = this.getHashParams();
         const token = params.access_token;
         if(token) {
@@ -43,8 +44,8 @@ class App extends React.Component {
         // Here, we prepare our redirect link to Spotify
         let state = this.generateRandomString(16);
         document.cookie = "spotify_auth_state="+state;
-        const loginLink = 'https://accounts.spotify.com/authorize?response_type=code&client_id='+config.client_id+"&scope="+config.scope+"&redirect_uri="+config.redirect_uri+"&state="+state;
-        
+        const loginLink = 'https://accounts.spotify.com/authorize?client_id='+config.client_id+'&response_type=token&redirect_uri='+config.redirect_uri+"&state="+state+"&scope="+config.scope;
+
         this.state = {
             loggedIn: token ? true : false,
             loginLink: encodeURI(loginLink),
@@ -61,8 +62,6 @@ class App extends React.Component {
 
     getNowPlaying() {
         spotify.getMyCurrentPlaybackState().then((response) => {
-            console.log(response);
-
             // Retrieving complete artists list
             let artists = [];
             response.item.artists.forEach(item => {
